@@ -454,38 +454,77 @@
         });
 
         function loadJobs() {
-            const jobsListDiv = document.getElementById('jobs-list');
-            jobsListDiv.innerHTML = ''; // Clear previous list
+    const jobsListDiv = document.getElementById('jobs-list');
+    jobsListDiv.innerHTML = '<p style="padding: 20px; text-align: center; color: #777;">Loading jobs...</p>';
 
-            // Filter jobs assigned to the current logged-in student
-            const myJobs = sampleJobs.filter(job =>
-                job.assignedTo && job.assignedTo.includes(currentUser.username)
-            );
+    // Ensure currentUser and username are available
+    if (!currentUser || !currentUser.username) {
+        console.error("Cannot load jobs: currentUser or username missing.");
+        jobsListDiv.innerHTML = '<div class="empty-jobs"><p>Error: User information not found. Please log in again.</p></div>';
+        return;
+    }
 
-            if (myJobs.length === 0) {
+    const apiUrl = `/api/get-jobs?assignedTo=${encodeURIComponent(currentUser.username)}`;
+    console.log("Fetching jobs from:", apiUrl); // Log the URL being fetched
+
+    fetch(apiUrl)
+        .then(response => {
+            console.log("Fetch response status:", response.status); // Log status
+            if (!response.ok) {
+                 // Try to get more details from response if it's an error
+                 return response.text().then(text => { // Get raw text
+                    throw new Error(`Network response was not ok (${response.status}). Body: ${text}`);
+                 });
+            }
+            return response.json();
+        })
+        .then(jobs => {
+            console.log("Jobs received from API:", jobs); // Log the received array
+            jobsListDiv.innerHTML = ''; // Clear loading/previous
+
+            if (!Array.isArray(jobs)) {
+                console.error("Received non-array data from API:", jobs);
+                throw new Error("Invalid data format received from server.");
+            }
+
+            if (jobs.length === 0) {
                 jobsListDiv.innerHTML = `
                     <div class="empty-jobs">
                         <p>No jobs assigned to you at the moment.</p>
                     </div>`;
-                 document.getElementById('no-job-selected').style.display = 'flex'; // Show placeholder
-                 document.getElementById('job-content').style.display = 'none'; // Hide details
+                document.getElementById('no-job-selected').style.display = 'flex';
+                document.getElementById('job-content').style.display = 'none';
             } else {
-                myJobs.forEach(job => {
+                window.loadedJobs = jobs; // Store globally
+
+                jobs.forEach(job => {
+                    if (!job || !job._id) {
+                        console.warn("Skipping invalid job object:", job);
+                        return; // Skip if job or _id is missing
+                    }
                     const jobItem = document.createElement('div');
                     jobItem.classList.add('job-item');
-                    jobItem.dataset.jobId = job.id; // Store job ID
-                    jobItem.onclick = () => showJobDetails(job.id); // Add click handler
+                    jobItem.dataset.jobId = job._id; // Use MongoDB _id
+                    jobItem.onclick = () => showJobDetails(job._id);
 
                     jobItem.innerHTML = `
-                        <div class="job-name">${job.jobType} - ${job.clientName}</div>
+                        <div class="job-name">${job.jobType || 'N/A'} - ${job.clientName || 'N/A'}</div>
                         <div class="job-date">Assigned: ${formatDate(job.assignedDate)}</div>
                     `;
                     jobsListDiv.appendChild(jobItem);
                 });
-                 document.getElementById('no-job-selected').style.display = 'flex'; // Show placeholder initially
-                 document.getElementById('job-content').style.display = 'none'; // Hide details initially
+                document.getElementById('no-job-selected').style.display = 'flex';
+                document.getElementById('job-content').style.display = 'none';
             }
-        }
+        })
+        .catch(error => {
+            console.error('Error fetching or processing jobs:', error); // Log the full error
+            jobsListDiv.innerHTML = `<div class="empty-jobs"><p>Error loading jobs: ${error.message}. Please try refreshing.</p></div>`;
+            document.getElementById('no-job-selected').style.display = 'flex';
+            document.getElementById('job-content').style.display = 'none';
+        });
+}
+
 
         function formatDate(dateString) {
             if (!dateString) return 'N/A';

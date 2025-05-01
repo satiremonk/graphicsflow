@@ -1,53 +1,53 @@
 // netlify/functions/create-job.js
 const { MongoClient, ServerApiVersion } = require('mongodb');
-
-// Connection URI from Netlify environment variable
 const uri = process.env.MONGODB_URI;
-
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+  serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
 });
 
 exports.handler = async (event, context) => {
-  // Only allow POST requests
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   try {
     const jobData = JSON.parse(event.body);
+    console.log("Received job data in function:", jobData); // Log received data
 
-    // Add server-side validation if needed
+    // Basic validation example (expand as needed)
+    if (!jobData || !jobData.clientName || !jobData.assignedTo || !Array.isArray(jobData.assignedTo) || jobData.assignedTo.length === 0) {
+       console.error("Validation failed for job data:", jobData);
+       return { statusCode: 400, body: JSON.stringify({ error: 'Missing required job data or invalid assignedTo field.'}) };
+    }
+
 
     await client.connect();
-    const database = client.db("graphicsflow"); // Use your database name
-    const jobsCollection = database.collection("jobs"); // Use your collection name
+    const database = client.db("graphicsflow");
+    const jobsCollection = database.collection("jobs");
 
-    // Optional: Add a timestamp or other server-generated fields
-    jobData.createdAt = new Date();
+    jobData.createdAt = new Date(); // Add creation timestamp
 
     const result = await jobsCollection.insertOne(jobData);
-
-    console.log(`Job inserted with _id: ${result.insertedId}`);
+    console.log(`Job inserted with _id: ${result.insertedId}`); // Log success
 
     return {
-      statusCode: 201, // 201 Created
+      statusCode: 201,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: 'Job created successfully', insertedId: result.insertedId }),
     };
   } catch (error) {
-    console.error('Error creating job:', error);
+    console.error('Error in create-job function:', error); // Log specific error
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Failed to create job', details: error.message }),
     };
   } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
+    // Ensure the client closes (important in serverless)
+    // Use try-catch around close if needed, though await usually handles it
+    try {
+        await client.close();
+    } catch (closeError) {
+        console.error("Error closing MongoDB connection:", closeError);
+    }
   }
 };
