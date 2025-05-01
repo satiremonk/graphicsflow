@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphicsFlow Workspace - Instructor Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background-color: #0066cc;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .account-info {
+            position: relative;
+        }
+
+        .account-dropdown {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .account-dropdown:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .account-type {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .account-name {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .dropdown-arrow {
+            margin-left: 8px;
+            font-size: 10px; /* Smaller arrow */
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 5px); /* Add small gap */
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            display: none;
+            z-index: 100;
+            overflow: hidden; /* Ensure border radius applies */
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f5ff; /* Lighter blue hover */
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto; /* Add top margin */
+        }
+
+        .students-section {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); /* Softer shadow */
+            padding: 20px;
+            min-width: 280px; /* Slightly smaller min-width */
+            border: 1px solid #e0e0e0; /* Subtle border */
+        }
+
+        .jobs-section {
+            flex: 2;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            min-width: 300px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            margin-bottom: 20px; /* Increased margin */
+            font-size: 18px;
+            font-weight: 600; /* Slightly bolder */
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-item {
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border: 1px solid transparent; /* Add border for hover effect */
+        }
+
+        .student-item:hover {
+            background-color: #f0f5ff;
+            border-color: #cce0ff; /* Subtle border on hover */
+        }
+
+        .student-avatar {
+            width: 36px;
+            height: 36px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 12px;
+            font-weight: 600;
+            color: #555;
+            font-size: 16px; /* Slightly larger initial */
+        }
+
+        .student-name {
+            font-weight: 500;
+            color: #444;
+        }
+
+        .jobs-controls {
+            margin-bottom: 20px;
+        }
+
+        .create-job-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.2s;
+            display: inline-flex; /* Align icon and text */
+            align-items: center;
+            gap: 8px; /* Space between icon and text */
+        }
+
+        .create-job-btn:hover {
+            background-color: #0052a3;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .create-job-btn svg {
+             /* Let the button color control the stroke */
+        }
+
+
+        .jobs-placeholder {
+            min-height: 200px; /* Ensure it has some height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            color: #888;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px; /* Add padding */
+        }
+
+        .jobs-placeholder svg {
+            margin-bottom: 15px;
+            opacity: 0.4; /* Slightly less opaque */
+            color: #aaa; /* Lighter color for icon */
+        }
+        .jobs-placeholder p {
+            line-height: 1.5;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo-text">GraphicsFlow Workspace</div>
+        <div class="account-info">
+            <div class="account-dropdown" onclick="toggleDropdown()">
+                <div>
+                    <div class="account-type">Instructor Account</div>
+                    <div class="account-name" id="user-name">Brian</div>
+                </div>
+                <div class="dropdown-arrow">▼</div>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="dropdown-item" onclick="logout()">Log Out</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="students-section">
+            <h2 class="section-title">Students</h2>
+            <div class="student-list">
+                <!-- Static student list for demo -->
+                <div class="student-item">
+                    <div class="student-avatar">J</div>
+                    <div class="student-name">Jake</div>
+                </div>
+                <div class="student-item">
+                    <div class="student-avatar">A</div>
+                    <div class="student-name">Alex</div>
+                </div>
+                <div class="student-item">
+                    <div class="student-avatar">S</div>
+                    <div class="student-name">Sarah</div>
+                </div>
+                <div class="student-item">
+                    <div class="student-avatar">M</div>
+                    <div class="student-name">Michael</div>
+                </div>
+                 <!-- Add more students as needed -->
+            </div>
+        </div>
+
+        <div class="jobs-section">
+             <div class="section-title">
+                 <span>Live Jobs</span>
+                 <button type="button" class="create-job-btn" onclick="location.href='create_job_form.html'">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Create New Job
+                </button>
+             </div>
+            <!-- Placeholder - This will eventually list active jobs -->
+            <div class="jobs-placeholder" id="jobs-list-area">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 17H15M9 13H15M9 9H10M13 3H8.5C7.09554 3 6.39331 3 5.88886 3.218C5.45123 3.40973 5.09027 3.77068 4.9 4.20832C4.68197 4.71277 4.68197 5.41495 4.68197 6.81934V17.1807C4.68197 18.585 4.68197 19.2872 4.9 19.7917C5.09027 20.2293 5.45123 20.5903 5.88886 20.782C6.39331 21 7.09554 21 8.5 21H15.5C16.9045 21 17.6067 21 18.1111 20.782C18.5488 20.5903 18.9097 20.2293 19.1 19.7917C19.318 19.2872 19.318 18.585 19.318 17.1807V10.5L13 3Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13 3V9C13 9.35362 13 9.53043 13.0519 9.67023C13.0982 9.79188 13.1728 9.89517 13.2691 9.96691C13.379 10.048 13.5221 10.0785 13.8083 10.1396L14 10.1667V10.1667C14.4696 10.2481 14.7044 10.2888 14.8816 10.2578C15.0369 10.2308 15.1773 10.1619 15.29 10.0596C15.4197 9.94106 15.5054 9.7759 15.5429 9.63377L15.5833 9.5M19.318 10.5H14.5C13.3954 10.5 13 10.1046 13 9V3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>No active jobs assigned yet.</p>
+                <p style="font-size: 14px; margin-top: 5px;">Use the 'Create New Job' button to add one.</p>
+            </div>
+             <!-- Removed the duplicate placeholder block here -->
+        </div>
+    </div>
+
+    <script>
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+
+            // If not logged in or not an instructor, redirect to login page
+            if (!currentUser || currentUser.role !== 'instructor') {
+                // Check if already on index.html to prevent redirect loop if session storage is cleared unexpectedly
+                if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
+                    return;
+                }
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Set user name
+            document.getElementById('user-name').textContent = currentUser.name;
+
+            // Future enhancement: Load existing jobs into #jobs-list-area
+        });
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('active');
+        }
+
+        function logout() {
+            // Remove user data from session storage
+            sessionStorage.removeItem('currentUser');
+            // Redirect to login page
+            window.location.href = 'index.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const accountDropdown = document.querySelector('.account-dropdown');
+
+            // Check if the click is outside the dropdown trigger and the menu itself
+            if (dropdown && accountDropdown && !accountDropdown.contains(event.target) && !dropdown.contains(event.target) && dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

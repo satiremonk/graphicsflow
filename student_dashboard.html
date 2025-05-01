@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphicsFlow Workspace - Student Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background-color: #0066cc;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .account-info {
+            position: relative;
+        }
+
+        .account-dropdown {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .account-dropdown:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .account-type {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .account-name {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .dropdown-arrow {
+            margin-left: 8px;
+             font-size: 10px; /* Smaller arrow */
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 5px); /* Add small gap */
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            display: none;
+            z-index: 100;
+            overflow: hidden; /* Ensure border radius applies */
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+             transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f5ff; /* Lighter blue hover */
+        }
+
+        .main-content {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping */
+            padding: 20px;
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto; /* Add top margin */
+        }
+
+        .jobs-sidebar {
+            flex: 1;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            min-width: 280px;
+            max-width: 350px; /* Slightly wider max */
+            border: 1px solid #e0e0e0;
+            align-self: flex-start; /* Prevent stretching */
+             max-height: calc(100vh - 100px); /* Limit height, adjust 100px based on topbar/margins */
+             overflow-y: auto; /* Add scroll if needed */
+        }
+
+        .job-details {
+            flex: 3;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            padding: 20px;
+            min-width: 300px;
+             border: 1px solid #e0e0e0;
+             min-height: 400px; /* Give it some default height */
+             align-self: flex-start; /* Prevent stretching */
+        }
+
+        .section-title {
+            margin-bottom: 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .job-item {
+            padding: 12px 15px; /* More padding */
+            border-radius: 6px; /* Slightly more rounded */
+            margin-bottom: 10px;
+            transition: background-color 0.2s, border-left-color 0.2s;
+            cursor: pointer;
+            border: 1px solid #eee; /* Base border */
+            border-left: 4px solid transparent; /* Left border for active state */
+            background-color: #fff; /* Ensure white background */
+        }
+
+        .job-item:hover {
+            background-color: #f8f9fa; /* Very light grey hover */
+            border-color: #e0e0e0;
+             border-left-color: #aaccff; /* Light blue indicator on hover */
+        }
+
+        .job-item.active {
+            background-color: #edf5ff; /* Light blue background */
+            border-color: #cce0ff; /* Blue border */
+            border-left-color: #0066cc; /* Solid blue active indicator */
+            font-weight: 500; /* Make active item text bolder */
+        }
+
+        .job-name {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #333;
+        }
+         .job-item.active .job-name {
+              color: #0052a3; /* Darker blue for active job name */
+         }
+
+
+        .job-date {
+            font-size: 12px;
+            color: #777;
+        }
+
+        .empty-jobs {
+            padding: 30px 10px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+             border: 2px dashed #eee;
+             border-radius: 6px;
+             margin-top: 10px;
+        }
+
+        .no-job-selected {
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+            color: #888;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+        }
+
+        .no-job-selected svg {
+            margin-bottom: 15px;
+            opacity: 0.4;
+            color: #aaa;
+        }
+         .no-job-selected p {
+            line-height: 1.5;
+        }
+
+        /* Job Details Styling */
+        .job-detail-header {
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .job-detail-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #0052a3; /* Match button hover */
+            margin-bottom: 8px; /* Increased spacing */
+        }
+
+        .job-detail-meta {
+            display: flex;
+            flex-wrap: wrap; /* Allow wrapping */
+            gap: 10px 20px; /* Row and column gap */
+            font-size: 13px; /* Slightly smaller meta */
+            color: #666;
+        }
+
+        .job-detail-meta span {
+            display: flex;
+            align-items: center;
+        }
+
+        .job-detail-meta svg {
+            margin-right: 6px; /* More space */
+            height: 16px;
+            width: 16px;
+            flex-shrink: 0; /* Prevent icon shrinking */
+            opacity: 0.8;
+        }
+
+        #job-details-content {
+            margin-top: 20px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .detail-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+         .detail-section p, .detail-section ul {
+             margin-left: 5px; /* Slight indent for content */
+         }
+         .detail-section ul {
+             list-style: disc;
+             padding-left: 20px;
+             margin-top: 5px;
+         }
+         .detail-label {
+             font-weight: 500;
+             color: #555;
+         }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo-text">GraphicsFlow Workspace</div>
+        <div class="account-info">
+            <div class="account-dropdown" onclick="toggleDropdown()">
+                <div>
+                    <div class="account-type">Student Account</div>
+                    <div class="account-name" id="user-name">Jake</div>
+                </div>
+                <div class="dropdown-arrow">▼</div>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="dropdown-item" onclick="logout()">Log Out</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="jobs-sidebar">
+            <h2 class="section-title">Live Jobs</h2>
+            <div id="jobs-list">
+                <!-- Job items will be populated here by JavaScript -->
+                <!-- Placeholder shown if list is empty after loading -->
+            </div>
+        </div>
+
+        <div class="job-details">
+            <div class="no-job-selected" id="no-job-selected">
+                <svg width="70" height="70" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 13V16M12 8V10M3.0509 14.5191C2.4189 13.5032 2.04487 12.7185 2.00519 12.3334C1.95463 11.8389 2.05284 11.358 2.28274 10.9308C2.5492 10.4387 3.05376 10.0421 4.06288 9.24886L4.43712 8.94114C5.44624 8.1479 6.0789 7.716 6.57483 7.39431C7.06773 7.07451 7.47867 6.87035 7.84805 6.79661C8.27878 6.7103 8.74006 6.76837 9.66261 6.88452L10.5 7M14.4625 6.88452C15.2596 6.77901 15.7182 6.72625 16.1519 6.79661C16.5213 6.87035 16.9323 7.07451 17.4252 7.39431C17.9211 7.716 18.5538 8.1479 19.5629 8.94114L19.9371 9.24886C20.9462 10.0421 21.4508 10.4387 21.7173 10.9308C21.9472 11.358 22.0454 11.8389 21.9948 12.3334C21.9551 12.7185 21.5811 13.5032 20.9491 14.5191L20.7 14.9365C19.9557 16.161 19.5836 16.7733 19.1 17.1761C18.6892 17.5178 18.19 17.7693 17.6442 17.8996C17.0111 18.0566 16.3704 18.0052 15.0889 17.9026L14 17.8235M10.5 7L12 4.5L13.5 7M10 17.8235C8.71858 17.9261 8.07787 17.9775 7.44479 18.1345C6.89894 18.2648 6.40003 18.5163 5.98925 18.858C5.5 19.2609 5.12793 19.8731 4.38379 21.1L4 21.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>No job selected</p>
+                <p style="font-size: 14px; margin-top: 5px;">Select a job from the list on the left to view its details.</p>
+            </div>
+
+            <div id="job-content" style="display: none;">
+                <div class="job-detail-header">
+                    <div class="job-detail-title" id="job-title">Job Title Goes Here</div>
+                    <div class="job-detail-meta">
+                         <span>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 10C2 8.11438 2 7.17157 2.58579 6.58579C3.17157 6 4.11438 6 6 6H18C19.8856 6 20.8284 6 21.4142 6.58579C22 7.17157 22 8.11438 22 10V16C22 17.8856 22 18.8284 21.4142 19.4142C20.8284 20 19.8856 20 18 20H6C4.11438 20 3.17157 20 2.58579 19.4142C2 18.8284 2 17.8856 2 16V10Z" stroke="currentColor" stroke-width="1.5"/><path d="M7 3L7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M17 3L17 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M2 10H22" stroke="currentColor" stroke-width="1.5"/></svg>
+                            Assigned: <span id="job-date"></span>
+                        </span>
+                        <span>
+                           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 6V12L16 14M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Deadline: <span id="job-deadline"></span>
+                        </span>
+                         <span>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7ZM12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Client: <span id="job-client"></span>
+                        </span>
+                        <span>
+                           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 16H12.01M9 16H9.01M15 16H15.01M8.2 21H15.8C16.9201 21 17.4802 21 17.908 20.782C18.2843 20.5903 18.5903 20.2843 18.782 19.908C19 19.4802 19 18.9201 19 17.8V6.2C19 5.0799 19 4.51984 18.782 4.09202C18.5903 3.71569 18.2843 3.40973 17.908 3.21799C17.4802 3 16.9201 3 15.8 3H8.2C7.0799 3 6.51984 3 6.09202 3.21799C5.71569 3.40973 5.40973 3.71569 5.21799 4.09202C5 4.51984 5 5.07989 5 6.2V17.8C5 18.9201 5 19.4802 5.21799 19.908C5.40973 20.2843 5.71569 20.5903 6.09202 20.782C6.51984 21 7.07989 21 8.2 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                           Qty: <span id="job-quantity"></span>
+                        </span>
+                        <span>
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5.5017 9.5061C5.8351 8.8384 6.3417 8.2671 6.9675 7.8596M18.4983 9.5061C18.1649 8.8384 17.6583 8.2671 17.0325 7.8596M12 12.01V12M12 15.01V15M7.9994 12.01H8.0084M15.9916 12.01H16.0006M9.9973 15.01H10.0063M13.9937 15.01H14.0027M12 21C7.0294 21 3 16.9706 3 12C3 7.0294 7.0294 3 12 3C16.9706 3 21 7.0294 21 12C21 13.4115 20.7104 14.753 20.1866 15.9603C19.8113 16.8455 19.2702 17.659 18.607 18.3428C17.0159 20.0457 14.6729 21 12 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Ink: <span id="job-ink"></span>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="job-details-content">
+                     <div class="detail-section">
+                         <h3>Job Type</h3>
+                         <p id="job-type-details"></p>
+                     </div>
+                     <div class="detail-section">
+                        <h3>Description</h3>
+                        <p id="job-description"></p>
+                    </div>
+                    <div class="detail-section">
+                        <h3>Client Details</h3>
+                        <p><span class="detail-label">Company:</span> <span id="job-company"></span></p>
+                        <p><span class="detail-label">Email:</span> <span id="job-email"></span></p>
+                        <p><span class="detail-label">Phone:</span> <span id="job-phone"></span></p>
+                        <p><span class="detail-label">Address:</span> <span id="job-address"></span></p>
+                        <p><span class="detail-label">Tax Status:</span> <span id="job-tax-status"></span></p>
+                    </div>
+                     <div class="detail-section">
+                         <h3>Attachments</h3>
+                         <ul id="job-files">
+                             <!-- Files will be listed here if available -->
+                             <li>No files attached.</li>
+                         </ul>
+                     </div>
+                     <!-- Add more sections as needed -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Sample Job Data (Replace with actual data loading later) ---
+        const sampleJobs = [
+            {
+                id: "job001",
+                clientName: "Alice Wonderland",
+                companyName: "Tea Party Inc.",
+                email: "alice@teaparty.com",
+                phone: "555-123-4567",
+                address: "123 Rabbit Hole Ln, Wonderland",
+                address2: "Apt 4B",
+                taxStatus: "tax-exempt", // 'tax-exempt', 'municipality', 'bp-school', 'none'
+                jobType: "Invitation (w/Envelope)",
+                description: "Design and print 100 invitations for the annual Mad Hatter tea party. Theme: Whimsical. Needs matching envelopes.",
+                quantity: 100,
+                inkColor: "Full Color",
+                files: ["invitation_draft_v1.ai", "logo.png"],
+                assignedDate: "2024-05-20",
+                deadline: "2024-06-05",
+                assignedTo: ["jaum"] // Matches username
+            },
+            {
+                id: "job002",
+                clientName: "Bob The Builder",
+                companyName: "Construction Co.",
+                email: "bob@buildit.com",
+                phone: "555-987-6543",
+                address: "456 Tool Ave, Constructville",
+                address2: "",
+                taxStatus: "none",
+                jobType: "Business Card",
+                description: "Design simple, sturdy business cards. Include name, company, phone, email, and a hammer icon. Two-sided.",
+                quantity: 500,
+                inkColor: "Black and Yellow",
+                files: [],
+                assignedDate: "2024-05-22",
+                deadline: "2024-06-10",
+                assignedTo: ["jaum", "alexs"] // Example: assigned to multiple
+            },
+             {
+                id: "job003",
+                clientName: "Cinderella",
+                companyName: "",
+                email: "cindy@fairytale.net",
+                phone: "555-111-2222",
+                address: "1 Royal Palace, Kingdom",
+                address2: "West Wing",
+                taxStatus: "municipality", // Example
+                jobType: "Poster",
+                description: "Create a large poster (24x36) announcing the Royal Ball. Elegant design, gold foil accents requested.",
+                quantity: 10,
+                inkColor: "Blue, Silver, Gold Foil",
+                files: ["palace_crest.svg"],
+                assignedDate: "2024-05-25",
+                deadline: "2024-06-15",
+                assignedTo: ["jaum"]
+            }
+        ];
+        // --- End Sample Job Data ---
+
+
+        let currentUser = null;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+
+            // If not logged in or not a student, redirect to login page
+            if (!currentUser || currentUser.role !== 'student') {
+                 // Check if already on index.html to prevent redirect loop
+                if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
+                    return;
+                }
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Set user name
+            document.getElementById('user-name').textContent = currentUser.name;
+
+            // Load jobs assigned to the current student
+            loadJobs();
+        });
+
+        function loadJobs() {
+            const jobsListDiv = document.getElementById('jobs-list');
+            jobsListDiv.innerHTML = ''; // Clear previous list
+
+            // Filter jobs assigned to the current logged-in student
+            const myJobs = sampleJobs.filter(job =>
+                job.assignedTo && job.assignedTo.includes(currentUser.username)
+            );
+
+            if (myJobs.length === 0) {
+                jobsListDiv.innerHTML = `
+                    <div class="empty-jobs">
+                        <p>No jobs assigned to you at the moment.</p>
+                    </div>`;
+                 document.getElementById('no-job-selected').style.display = 'flex'; // Show placeholder
+                 document.getElementById('job-content').style.display = 'none'; // Hide details
+            } else {
+                myJobs.forEach(job => {
+                    const jobItem = document.createElement('div');
+                    jobItem.classList.add('job-item');
+                    jobItem.dataset.jobId = job.id; // Store job ID
+                    jobItem.onclick = () => showJobDetails(job.id); // Add click handler
+
+                    jobItem.innerHTML = `
+                        <div class="job-name">${job.jobType} - ${job.clientName}</div>
+                        <div class="job-date">Assigned: ${formatDate(job.assignedDate)}</div>
+                    `;
+                    jobsListDiv.appendChild(jobItem);
+                });
+                 document.getElementById('no-job-selected').style.display = 'flex'; // Show placeholder initially
+                 document.getElementById('job-content').style.display = 'none'; // Hide details initially
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString + 'T00:00:00'); // Treat as local date
+                 return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+            } catch (e) {
+                return dateString; // Return original if formatting fails
+            }
+        }
+
+
+        function showJobDetails(jobId) {
+            // Find the job data
+             const job = sampleJobs.find(j => j.id === jobId);
+
+            if (!job) {
+                console.error("Job not found:", jobId);
+                // Optionally show an error message in the UI
+                return;
+            }
+
+            // Hide "no job selected" message
+            document.getElementById('no-job-selected').style.display = 'none';
+            // Show job content area
+            document.getElementById('job-content').style.display = 'block';
+
+            // Populate the details
+            document.getElementById('job-title').textContent = `${job.jobType} for ${job.clientName}`;
+            document.getElementById('job-date').textContent = formatDate(job.assignedDate);
+            document.getElementById('job-deadline').textContent = formatDate(job.deadline);
+            document.getElementById('job-client').textContent = job.clientName || 'N/A';
+            document.getElementById('job-quantity').textContent = job.quantity || 'N/A';
+            document.getElementById('job-ink').textContent = job.inkColor || 'N/A';
+
+            // Populate extended details section
+            document.getElementById('job-type-details').textContent = job.jobType || 'Not specified';
+            document.getElementById('job-description').textContent = job.description || 'No description provided.';
+            document.getElementById('job-company').textContent = job.companyName || 'N/A';
+            document.getElementById('job-email').textContent = job.email || 'N/A';
+            document.getElementById('job-phone').textContent = job.phone || 'N/A';
+            document.getElementById('job-address').textContent = `${job.address || ''} ${job.address2 || ''}`.trim() || 'N/A';
+
+            // Format tax status nicely
+            let taxStatusText = 'N/A';
+            switch(job.taxStatus) {
+                case 'tax-exempt': taxStatusText = 'Tax Exempt Business'; break;
+                case 'municipality': taxStatusText = 'Municipality'; break;
+                case 'bp-school': taxStatusText = 'B-P School Business'; break;
+                case 'none': taxStatusText = 'None (Taxable)'; break;
+            }
+            document.getElementById('job-tax-status').textContent = taxStatusText;
+
+             // Populate file list
+            const filesList = document.getElementById('job-files');
+            filesList.innerHTML = ''; // Clear previous files
+            if (job.files && job.files.length > 0) {
+                job.files.forEach(fileName => {
+                    const li = document.createElement('li');
+                    // In a real app, this would be a link
+                    li.textContent = fileName;
+                    filesList.appendChild(li);
+                });
+            } else {
+                filesList.innerHTML = '<li>No files attached.</li>';
+            }
+
+
+            // Mark the selected job as active in the sidebar
+            const jobItems = document.querySelectorAll('.job-item');
+            jobItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.jobId === jobId) {
+                    item.classList.add('active');
+                }
+            });
+        }
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('active');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+             const accountDropdown = document.querySelector('.account-dropdown');
+
+             if (dropdown && accountDropdown && !accountDropdown.contains(event.target) && !dropdown.contains(event.target) && dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

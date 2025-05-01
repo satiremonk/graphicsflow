@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GraphicsFlow Workspace - Create New Job</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background-color: #0066cc;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .account-info {
+            position: relative;
+        }
+
+        .account-dropdown {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 4px;
+             transition: background-color 0.2s;
+        }
+
+        .account-dropdown:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .account-type {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .account-name {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .dropdown-arrow {
+            margin-left: 8px;
+             font-size: 10px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 5px);
+            right: 0;
+            background-color: white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            min-width: 150px;
+            display: none;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 15px;
+            color: #333;
+            cursor: pointer;
+            font-size: 14px;
+             transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f5ff;
+        }
+
+        .main-content {
+            max-width: 900px; /* Slightly narrower */
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Softer shadow */
+            padding: 30px 40px; /* More padding */
+             border: 1px solid #e0e0e0;
+        }
+
+        .form-title {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 25px; /* More space below */
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .form-section {
+            margin-bottom: 35px; /* More space between sections */
+        }
+
+        .form-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #0066cc; /* Blue title */
+            margin-bottom: 20px; /* More space below title */
+            padding-bottom: 5px;
+            /* border-bottom: 1px solid #e0e0e0; */ /* Optional: add subtle line */
+        }
+
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -15px; /* Increased negative margin */
+        }
+
+        .form-col {
+            flex: 1;
+            padding: 0 15px; /* Increased padding */
+            min-width: calc(50% - 30px); /* Adjust min-width for gap */
+            margin-bottom: 20px; /* Spacing for columns when wrapping */
+        }
+         @media (max-width: 700px) {
+             .form-col {
+                 min-width: 100%; /* Stack columns on small screens */
+                 margin-bottom: 0; /* Reset bottom margin */
+             }
+             .form-row {
+                 margin-bottom: 0; /* Reset row bottom margin */
+             }
+             .form-col .form-group {
+                 margin-bottom: 20px; /* Add margin back to group */
+             }
+         }
+
+
+        .form-group {
+            margin-bottom: 20px; /* Spacing between form elements */
+            position: relative; /* For error message positioning */
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px; /* More space below label */
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .required-mark {
+            color: #e53935;
+            margin-left: 3px;
+            font-weight: normal; /* Make asterisk less bold */
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc; /* Slightly darker border */
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fff; /* Ensure white background */
+        }
+
+        input:focus, textarea:focus, select:focus {
+            border-color: #0066cc;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15); /* Subtle focus ring */
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .option-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .option-btn {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 15px; /* More horizontal padding */
+            font-size: 14px;
+            color: #444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover {
+            background-color: #e9e9e9;
+             border-color: #ccc;
+        }
+
+        .option-btn.selected {
+            background-color: #0066cc;
+            color: white;
+            border-color: #0052a3;
+            font-weight: 500;
+        }
+
+        .job-type-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* Adjust minmax */
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .file-input-container {
+            margin-top: 10px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            background-color: #f0f0f0;
+            color: #333;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .file-input-label:hover {
+            background-color: #e0e0e0;
+             border-color: #bbb;
+        }
+
+        .file-input {
+            display: none; /* Hide actual input */
+        }
+
+        .file-name {
+            margin-top: 10px; /* Increased space */
+            font-size: 14px;
+            color: #555;
+            display: block; /* Ensure it takes space */
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 40px; /* More space above buttons */
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .cancel-btn, .submit-btn {
+             border-radius: 4px;
+            padding: 10px 25px; /* More padding */
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .cancel-btn {
+            background-color: #f5f5f5;
+            color: #555; /* Darker grey text */
+            border: 1px solid #ddd;
+        }
+
+        .cancel-btn:hover {
+            background-color: #e9e9e9;
+            border-color: #ccc;
+            color: #333;
+        }
+
+        .submit-btn {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+        }
+
+        .submit-btn:hover {
+            background-color: #0052a3;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* For the quantity input number picker */
+        input[type="number"] {
+            -moz-appearance: textfield; /* Firefox */
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Error styles */
+        .error-message {
+            color: #d32f2f; /* Use a slightly less harsh red */
+            font-size: 12px;
+            margin-top: 5px;
+            display: none; /* Hide by default */
+            position: absolute; /* Position relative to form-group */
+             bottom: -18px; /* Position below input */
+             left: 0;
+        }
+
+        .form-group.error .error-message {
+            display: block; /* Show only when error class is present */
+        }
+
+        .form-group.error input,
+        .form-group.error textarea,
+        .form-group.error select {
+            border-color: #d32f2f;
+            background-color: #fff8f8; /* Very light red background */
+        }
+         .form-group.error .option-group {
+             /* Maybe add a red border to the group? */
+             /* border: 1px dashed #d32f2f; */
+             /* padding: 5px; */
+             border-radius: 4px;
+         }
+         .form-group.error .option-group + .error-message {
+             position: static; /* Reset position for options */
+             margin-top: 8px;
+         }
+
+
+        /* Student selection styles */
+        .student-selection {
+             margin-top: 10px; /* Adjusted space */
+        }
+         .student-list {
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+         }
+
+        .student-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .student-item:last-child {
+            border-bottom: none;
+        }
+        .student-item:hover {
+            background-color: #f8f9fa;
+        }
+        .student-item input[type="checkbox"] {
+            margin-right: 12px; /* More space */
+            width: auto; /* Let browser size checkbox */
+            flex-shrink: 0; /* Prevent shrinking */
+            cursor: pointer;
+            height: 16px; /* Explicit size */
+            width: 16px;
+         }
+         .student-item label {
+             margin-bottom: 0; /* Reset label margin */
+             font-weight: normal; /* Normal weight label */
+             cursor: pointer;
+             flex-grow: 1; /* Take remaining space */
+             color: #444;
+         }
+         .student-list-error {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 8px;
+            display: none;
+         }
+         .form-group.error .student-list {
+             border-color: #d32f2f;
+         }
+         .form-group.error .student-list-error {
+             display: block;
+         }
+
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo-text">GraphicsFlow Workspace</div>
+        <div class="account-info">
+            <div class="account-dropdown" onclick="toggleDropdown()">
+                <div>
+                    <div class="account-type">Instructor Account</div>
+                    <div class="account-name" id="user-name">Brian</div>
+                </div>
+                <div class="dropdown-arrow">▼</div>
+            </div>
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="dropdown-item" onclick="logout()">Log Out</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="form-container">
+            <h1 class="form-title">Create New Job</h1>
+
+            <form id="create-job-form" novalidate> <!-- novalidate prevents default browser validation -->
+                <div class="form-section">
+                    <h2 class="form-section-title">Client Information</h2>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="client-name">Name<span class="required-mark">*</span></label>
+                                <input type="text" id="client-name" placeholder="First and last name" required>
+                                <div class="error-message">Please enter the client's name</div>
+                            </div>
+                        </div>
+
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="company-name">Company Name</label>
+                                <input type="text" id="company-name" placeholder="Company or organization name (optional)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="email">Email<span class="required-mark">*</span></label>
+                                <input type="email" id="email" placeholder="e.g., client@example.com" required>
+                                <div class="error-message">Please enter a valid email address</div>
+                            </div>
+                        </div>
+
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="phone">Phone Number<span class="required-mark">*</span></label>
+                                <input type="tel" id="phone" placeholder="e.g., 555-123-4567" required>
+                                <div class="error-message">Please enter a valid phone number</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="address">Address<span class="required-mark">*</span></label>
+                                <input type="text" id="address" placeholder="Street address" required>
+                                <div class="error-message">Please enter a street address</div>
+                            </div>
+                        </div>
+
+                        <div class="form-col">
+                             <div class="form-group">
+                                <label for="address2">Address 2</label>
+                                <input type="text" id="address2" placeholder="Apartment, suite, etc. (optional)">
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tax Exempt/Municipality/B-P School Business<span class="required-mark">*</span></label>
+                        <div class="option-group">
+                            <button type="button" class="option-btn" data-tax-status="tax-exempt">Tax Exempt Business</button>
+                            <button type="button" class="option-btn" data-tax-status="municipality">Municipality</button>
+                            <button type="button" class="option-btn" data-tax-status="bp-school">B-P School Business</button>
+                            <button type="button" class="option-btn" data-tax-status="none">None (Taxable)</button>
+                        </div>
+                        <input type="hidden" id="tax-status" name="tax-status" required> <!-- Added name -->
+                        <div class="error-message">Please select a tax status</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="form-section-title">Job Details</h2>
+
+                    <div class="form-group">
+                        <label>Graphics Job Type<span class="required-mark">*</span></label>
+                        <div class="job-type-options">
+                            <!-- Simplified list for brevity in example, add all back as needed -->
+                            <button type="button" class="option-btn" data-job-type="Book">Book</button>
+                            <button type="button" class="option-btn" data-job-type="Booklet">Booklet</button>
+                            <button type="button" class="option-btn" data-job-type="Brochure">Brochure</button>
+                            <button type="button" class="option-btn" data-job-type="Business Card">Business Card</button>
+                            <button type="button" class="option-btn" data-job-type="Envelope (Business Size)">Envelope (Business)</button>
+                            <button type="button" class="option-btn" data-job-type="Envelope (Personal Size)">Envelope (Personal)</button>
+                            <button type="button" class="option-btn" data-job-type="Flyer">Flyer</button>
+                            <button type="button" class="option-btn" data-job-type="Hooded Sweatshirt">Hooded Sweatshirt</button>
+                            <button type="button" class="option-btn" data-job-type="Invitation (No Envelope)">Invitation (No Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Invitation (w/Envelope)">Invitation (w/ Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Invitations(No Envelope) & Response Cards (No Envelope)">Inv (No Env) & Resp (No Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Invitations(No Envelope) & Response Cards (w/Envelope)">Inv (No Env) & Resp (w/ Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Invitations(w/Envelope) & Response Cards (No Envelope)">Inv (w/ Env) & Resp (No Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Invitations(w/Envelope) & Response Cards (w/Envelope)">Inv (w/ Env) & Resp (w/ Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Letterhead">Letterhead</button>
+                            <button type="button" class="option-btn" data-job-type="Poster">Poster</button>
+                            <button type="button" class="option-btn" data-job-type="Program">Program</button>
+                            <button type="button" class="option-btn" data-job-type="Raffle Ticket">Raffle Ticket</button>
+                            <button type="button" class="option-btn" data-job-type="Response Card (No Envelope)">Response Card (No Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Response Card (w/Envelope)">Response Card (w/ Env)</button>
+                            <button type="button" class="option-btn" data-job-type="Sign or Banner">Sign or Banner</button>
+                            <button type="button" class="option-btn" data-job-type="Sweatshirt">Sweatshirt</button>
+                            <button type="button" class="option-btn" data-job-type="T-Shirt">T-Shirt</button>
+                            <button type="button" class="option-btn" data-job-type="Ticket">Ticket</button>
+                            <button type="button" class="option-btn" data-job-type="Custom">None (Describe Below)</button>
+                        </div>
+                        <input type="hidden" id="job-type" name="job-type" required> <!-- Added name -->
+                        <div class="error-message">Please select a job type</div>
+                    </div>
+
+                     <div class="form-group"> <!-- Wrap description in its own group -->
+                        <label for="job-description">Description of work<span class="required-mark">*</span></label>
+                        <textarea id="job-description" placeholder="Provide a detailed description of the job requirements, colors, sizes, specific instructions, etc." required></textarea>
+                        <div class="error-message">Please enter a job description</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="quantity">Quantity</label>
+                                <input type="number" id="quantity" min="1" placeholder="Enter quantity (optional)">
+                            </div>
+                        </div>
+
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="ink-color">Color of Ink</label>
+                                <input type="text" id="ink-color" placeholder="e.g., Full Color, Black, PMS 185 (optional)">
+                            </div>
+                        </div>
+                    </div>
+
+                     <div class="form-group"> <!-- Wrap file upload in its own group -->
+                        <label>Upload Files (Optional)</label>
+                        <div class="file-input-container">
+                            <label for="file-upload" class="file-input-label">Choose Files</label>
+                            <input type="file" id="file-upload" class="file-input" multiple>
+                            <span class="file-name" id="file-name">No files selected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="form-section-title">Assign to Student(s)<span class="required-mark">*</span></h2>
+
+                    <div class="form-group student-selection"> <!-- Added form-group -->
+                         <label>Select one or more students:</label>
+                        <div class="student-list">
+                            <!-- Static list for demo -->
+                            <div class="student-item">
+                                <input type="checkbox" id="student-jaum" name="students" value="jaum">
+                                <label for="student-jaum">Jake</label>
+                            </div>
+                            <div class="student-item">
+                                <input type="checkbox" id="student-alexs" name="students" value="alexs">
+                                <label for="student-alexs">Alex</label>
+                            </div>
+                            <div class="student-item">
+                                <input type="checkbox" id="student-sarahj" name="students" value="sarahj">
+                                <label for="student-sarahj">Sarah</label>
+                            </div>
+                            <div class="student-item">
+                                <input type="checkbox" id="student-michaelb" name="students" value="michaelb">
+                                <label for="student-michaelb">Michael</label>
+                            </div>
+                            <!-- Add more students as needed, ensure 'value' matches their username -->
+                        </div>
+                         <div class="student-list-error">Please assign the job to at least one student</div>
+                    </div>
+                </div>
+
+                <div class="buttons-container">
+                    <button type="button" class="cancel-btn" onclick="cancelForm()">Cancel</button>
+                    <button type="submit" class="submit-btn">Create Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+
+        // Check if user is logged in
+        document.addEventListener('DOMContentLoaded', function() {
+             currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+
+            // If not logged in or not an instructor, redirect to login page
+            if (!currentUser || currentUser.role !== 'instructor') {
+                 // Check if already on index.html to prevent redirect loop
+                if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
+                    return;
+                }
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Set user name
+            document.getElementById('user-name').textContent = currentUser.name;
+
+            // Setup interactive elements
+            setupOptionButtons('tax-status', '[data-tax-status]');
+            setupOptionButtons('job-type', '[data-job-type]');
+            setupFileUpload();
+            setupFormValidation();
+        });
+
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.classList.toggle('active');
+        }
+
+        function logout() {
+            sessionStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const dropdown = document.getElementById('dropdown-menu');
+            const accountDropdown = document.querySelector('.account-dropdown');
+             if (dropdown && accountDropdown && !accountDropdown.contains(event.target) && !dropdown.contains(event.target) && dropdown.classList.contains('active')) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function setupOptionButtons(hiddenInputId, buttonSelector) {
+            const hiddenInput = document.getElementById(hiddenInputId);
+            const buttons = document.querySelectorAll(buttonSelector);
+            const formGroup = hiddenInput.closest('.form-group'); // Get parent form-group
+
+            buttons.forEach(button => {
+                button.addEventListener('click', function() {
+                    buttons.forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                    hiddenInput.value = this.dataset[hiddenInputId.replace('-', '')]; // e.g., data-tax-status -> taxStatus
+                    hiddenInput.dispatchEvent(new Event('change')); // Trigger change for validation if needed
+                     if (formGroup) formGroup.classList.remove('error'); // Clear error on selection
+                });
+            });
+        }
+
+
+        function setupFileUpload() {
+            const fileInput = document.getElementById('file-upload');
+            const fileNameDisplay = document.getElementById('file-name');
+
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    if (this.files.length === 1) {
+                        fileNameDisplay.textContent = this.files[0].name;
+                    } else {
+                        fileNameDisplay.textContent = `${this.files.length} files selected`;
+                    }
+                } else {
+                    fileNameDisplay.textContent = 'No files selected';
+                }
+            });
+        }
+
+         function validateField(field) {
+            const formGroup = field.closest('.form-group');
+            let isValid = true;
+            let errorMessage = '';
+
+             // Clear previous error state
+             if (formGroup) formGroup.classList.remove('error');
+
+
+            if (field.required) {
+                if (field.type === 'checkbox' || field.type === 'radio') {
+                     // Handled separately for groups like student list
+                } else if (field.type === 'hidden') {
+                     // For option buttons, check value
+                     if (!field.value) {
+                         isValid = false;
+                         errorMessage = formGroup?.querySelector('.error-message')?.textContent || 'This selection is required';
+                     }
+                }
+                 else if (!field.value.trim()) {
+                    isValid = false;
+                     errorMessage = formGroup?.querySelector('.error-message')?.textContent || 'This field is required';
+                }
+            }
+
+             // Specific validations
+             if (isValid && field.type === 'email' && field.value.trim() && !isValidEmail(field.value)) {
+                 isValid = false;
+                 errorMessage = 'Please enter a valid email address';
+             }
+             // Basic phone validation (e.g., check for at least some digits)
+             if (isValid && field.type === 'tel' && field.value.trim() && !/^\d[\d\s-]*\d$/.test(field.value)) {
+                 isValid = false;
+                  errorMessage = 'Please enter a valid phone number';
+             }
+
+
+            if (!isValid && formGroup) {
+                formGroup.classList.add('error');
+                 // Update the error message if specific one was set
+                 const errorDiv = formGroup.querySelector('.error-message');
+                 if (errorDiv && errorMessage) {
+                     // errorDiv.textContent = errorMessage; // You can enable this if needed
+                 }
+            }
+
+            return isValid;
+        }
+
+        function validateStudentSelection() {
+             const studentGroup = document.querySelector('.student-selection');
+             const checkboxes = studentGroup.querySelectorAll('input[name="students"]:checked');
+             const isValid = checkboxes.length > 0;
+
+              if (!isValid) {
+                 studentGroup.classList.add('error');
+             } else {
+                 studentGroup.classList.remove('error');
+             }
+             return isValid;
+         }
+
+
+        function setupFormValidation() {
+            const form = document.getElementById('create-job-form');
+            const requiredInputs = form.querySelectorAll('[required]');
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default submission
+
+                let isFormValid = true;
+
+                // Validate individual required fields
+                requiredInputs.forEach(input => {
+                    if (!validateField(input)) {
+                        isFormValid = false;
+                    }
+                });
+
+                 // Validate student selection group
+                 if (!validateStudentSelection()) {
+                     isFormValid = false;
+                 }
+
+
+                // If all validations pass, proceed
+                if (isFormValid) {
+                    console.log('Form is valid. Submitting...');
+                    // --- Data Collection (Example) ---
+                    const formData = {
+                         clientName: document.getElementById('client-name').value.trim(),
+                         companyName: document.getElementById('company-name').value.trim(),
+                         email: document.getElementById('email').value.trim(),
+                         phone: document.getElementById('phone').value.trim(),
+                         address: document.getElementById('address').value.trim(),
+                         address2: document.getElementById('address2').value.trim(),
+                         taxStatus: document.getElementById('tax-status').value,
+                         jobType: document.getElementById('job-type').value,
+                         description: document.getElementById('job-description').value.trim(),
+                         quantity: document.getElementById('quantity').value || null, // Store as number or null
+                         inkColor: document.getElementById('ink-color').value.trim() || null,
+                         files: Array.from(document.getElementById('file-upload').files).map(f => f.name), // Just names for now
+                         assignedTo: Array.from(document.querySelectorAll('input[name="students"]:checked')).map(cb => cb.value),
+                         assignedDate: new Date().toISOString().split('T')[0], // Add assignment date
+                         // deadline: // You might want to add a deadline field to the form
+                    };
+
+                    console.log("Collected Form Data:", formData);
+
+                    // For demonstration, show success alert and redirect
+                    // In a real app: Send formData to server/save to localStorage
+                    alert('Job created successfully!');
+                    window.location.href = 'instructor_dashboard.html';
+
+                } else {
+                    console.log('Form validation failed.');
+                     // Find the first invalid field and scroll to it
+                     const firstError = form.querySelector('.error');
+                     if (firstError) {
+                         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                     }
+                }
+            });
+
+             // Optional: Add real-time validation on blur/change
+            // requiredInputs.forEach(input => {
+            //     input.addEventListener('blur', () => validateField(input));
+            //     input.addEventListener('change', () => validateField(input)); // For selects/hidden inputs
+            // });
+             // document.querySelectorAll('input[name="students"]').forEach(cb => {
+             //     cb.addEventListener('change', validateStudentSelection);
+             // });
+        }
+
+        function isValidEmail(email) {
+            // Basic email regex
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(String(email).toLowerCase());
+        }
+
+        function cancelForm() {
+            // Check if any significant fields have data
+            const hasData = Array.from(document.querySelectorAll('#create-job-form input[type="text"], #create-job-form textarea'))
+                                  .some(el => el.value.trim() !== '');
+             const studentsSelected = document.querySelectorAll('input[name="students"]:checked').length > 0;
+
+            if (hasData || studentsSelected) {
+                 if (confirm('Are you sure you want to cancel? Any entered information will be lost.')) {
+                    window.location.href = 'instructor_dashboard.html';
+                }
+            } else {
+                // If form is empty, just go back
+                window.location.href = 'instructor_dashboard.html';
+            }
+        }
+    </script>
+</body>
+</html>
