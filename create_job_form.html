@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GraphicsFlow Workspace - Create New Job</title>
     <style>
+        /* --- Styles remain exactly the same --- */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -309,6 +310,12 @@
             background-color: #0052a3;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+         .submit-btn:disabled { /* Style for disabled button */
+             background-color: #b0c4de; /* Lighter blue */
+             cursor: not-allowed;
+             box-shadow: none;
+         }
+
 
         /* For the quantity input number picker */
         input[type="number"] {
@@ -407,11 +414,10 @@
          .form-group.error .student-list-error {
              display: block;
          }
-
-
     </style>
 </head>
 <body>
+    <!-- Top Bar HTML remains the same -->
     <div class="top-bar">
         <div class="logo-text">GraphicsFlow Workspace</div>
         <div class="account-info">
@@ -432,7 +438,8 @@
         <div class="form-container">
             <h1 class="form-title">Create New Job</h1>
 
-            <form id="create-job-form" novalidate> <!-- novalidate prevents default browser validation -->
+            <!-- Form HTML remains the same -->
+            <form id="create-job-form" novalidate>
                 <div class="form-section">
                     <h2 class="form-section-title">Client Information</h2>
 
@@ -496,7 +503,7 @@
                             <button type="button" class="option-btn" data-tax-status="bp-school">B-P School Business</button>
                             <button type="button" class="option-btn" data-tax-status="none">None (Taxable)</button>
                         </div>
-                        <input type="hidden" id="tax-status" name="tax-status" required> <!-- Added name -->
+                        <input type="hidden" id="tax-status" name="tax-status" required>
                         <div class="error-message">Please select a tax status</div>
                     </div>
                 </div>
@@ -507,7 +514,6 @@
                     <div class="form-group">
                         <label>Graphics Job Type<span class="required-mark">*</span></label>
                         <div class="job-type-options">
-                            <!-- Simplified list for brevity in example, add all back as needed -->
                             <button type="button" class="option-btn" data-job-type="Book">Book</button>
                             <button type="button" class="option-btn" data-job-type="Booklet">Booklet</button>
                             <button type="button" class="option-btn" data-job-type="Brochure">Brochure</button>
@@ -534,11 +540,11 @@
                             <button type="button" class="option-btn" data-job-type="Ticket">Ticket</button>
                             <button type="button" class="option-btn" data-job-type="Custom">None (Describe Below)</button>
                         </div>
-                        <input type="hidden" id="job-type" name="job-type" required> <!-- Added name -->
+                        <input type="hidden" id="job-type" name="job-type" required>
                         <div class="error-message">Please select a job type</div>
                     </div>
 
-                     <div class="form-group"> <!-- Wrap description in its own group -->
+                     <div class="form-group">
                         <label for="job-description">Description of work<span class="required-mark">*</span></label>
                         <textarea id="job-description" placeholder="Provide a detailed description of the job requirements, colors, sizes, specific instructions, etc." required></textarea>
                         <div class="error-message">Please enter a job description</div>
@@ -560,7 +566,7 @@
                         </div>
                     </div>
 
-                     <div class="form-group"> <!-- Wrap file upload in its own group -->
+                     <div class="form-group">
                         <label>Upload Files (Optional)</label>
                         <div class="file-input-container">
                             <label for="file-upload" class="file-input-label">Choose Files</label>
@@ -573,10 +579,9 @@
                 <div class="form-section">
                     <h2 class="form-section-title">Assign to Student(s)<span class="required-mark">*</span></h2>
 
-                    <div class="form-group student-selection"> <!-- Added form-group -->
+                    <div class="form-group student-selection">
                          <label>Select one or more students:</label>
                         <div class="student-list">
-                            <!-- Static list for demo -->
                             <div class="student-item">
                                 <input type="checkbox" id="student-jaum" name="students" value="jaum">
                                 <label for="student-jaum">Jake</label>
@@ -593,7 +598,6 @@
                                 <input type="checkbox" id="student-michaelb" name="students" value="michaelb">
                                 <label for="student-michaelb">Michael</label>
                             </div>
-                            <!-- Add more students as needed, ensure 'value' matches their username -->
                         </div>
                          <div class="student-list-error">Please assign the job to at least one student</div>
                     </div>
@@ -607,31 +611,28 @@
         </div>
     </div>
 
+    <!-- ==================================================== -->
+    <!-- SCRIPT SECTION - THIS IS WHERE THE FIX IS APPLIED -->
+    <!-- ==================================================== -->
     <script>
         let currentUser = null;
 
-        // Check if user is logged in
+        // --- Functions for login check, dropdown, logout, options, file upload ---
+        // (These setup functions remain the same as before)
+
         document.addEventListener('DOMContentLoaded', function() {
              currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
-
-            // If not logged in or not an instructor, redirect to login page
-            if (!currentUser || currentUser.role !== 'instructor') {
-                 // Check if already on index.html to prevent redirect loop
-                if (window.location.pathname.endsWith('index.html') || window.location.pathname.endsWith('/')) {
-                    return;
+             if (!currentUser || currentUser.role !== 'instructor') {
+                if (!window.location.pathname.endsWith('index.html') && !window.location.pathname.endsWith('/')) {
+                    window.location.href = 'index.html';
                 }
-                window.location.href = 'index.html';
                 return;
             }
-
-            // Set user name
             document.getElementById('user-name').textContent = currentUser.name;
-
-            // Setup interactive elements
             setupOptionButtons('tax-status', '[data-tax-status]');
             setupOptionButtons('job-type', '[data-job-type]');
             setupFileUpload();
-            setupFormValidation();
+            setupFormValidation(); // Calls the updated function below
         });
 
         function toggleDropdown() {
@@ -644,7 +645,6 @@
             window.location.href = 'index.html';
         }
 
-        // Close dropdown when clicking outside
         document.addEventListener('click', function(event) {
             const dropdown = document.getElementById('dropdown-menu');
             const accountDropdown = document.querySelector('.account-dropdown');
@@ -656,83 +656,66 @@
         function setupOptionButtons(hiddenInputId, buttonSelector) {
             const hiddenInput = document.getElementById(hiddenInputId);
             const buttons = document.querySelectorAll(buttonSelector);
-            const formGroup = hiddenInput.closest('.form-group'); // Get parent form-group
-
+            const formGroup = hiddenInput.closest('.form-group');
             buttons.forEach(button => {
                 button.addEventListener('click', function() {
                     buttons.forEach(btn => btn.classList.remove('selected'));
                     this.classList.add('selected');
-                    hiddenInput.value = this.dataset[hiddenInputId.replace('-', '')]; // e.g., data-tax-status -> taxStatus
-                    hiddenInput.dispatchEvent(new Event('change')); // Trigger change for validation if needed
-                     if (formGroup) formGroup.classList.remove('error'); // Clear error on selection
+                    hiddenInput.value = this.dataset[hiddenInputId.replace('-', '')];
+                    hiddenInput.dispatchEvent(new Event('change'));
+                     if (formGroup) formGroup.classList.remove('error');
                 });
             });
         }
 
-
         function setupFileUpload() {
             const fileInput = document.getElementById('file-upload');
             const fileNameDisplay = document.getElementById('file-name');
-
             fileInput.addEventListener('change', function() {
                 if (this.files && this.files.length > 0) {
-                    if (this.files.length === 1) {
-                        fileNameDisplay.textContent = this.files[0].name;
-                    } else {
-                        fileNameDisplay.textContent = `${this.files.length} files selected`;
-                    }
+                    fileNameDisplay.textContent = this.files.length === 1 ? this.files[0].name : `${this.files.length} files selected`;
                 } else {
                     fileNameDisplay.textContent = 'No files selected';
                 }
             });
         }
 
-         function validateField(field) {
+        function isValidEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(String(email).toLowerCase());
+        }
+
+        function cancelForm() {
+            const hasData = Array.from(document.querySelectorAll('#create-job-form input[type="text"], #create-job-form textarea')).some(el => el.value.trim() !== '');
+            const studentsSelected = document.querySelectorAll('input[name="students"]:checked').length > 0;
+            if (hasData || studentsSelected) {
+                 if (confirm('Are you sure you want to cancel? Any entered information will be lost.')) {
+                    window.location.href = 'instructor_dashboard.html';
+                }
+            } else {
+                window.location.href = 'instructor_dashboard.html';
+            }
+        }
+
+        // --- Validation Functions (remain the same) ---
+        function validateField(field) {
             const formGroup = field.closest('.form-group');
             let isValid = true;
             let errorMessage = '';
-
-             // Clear previous error state
              if (formGroup) formGroup.classList.remove('error');
-
-
-            if (field.required) {
-                if (field.type === 'checkbox' || field.type === 'radio') {
-                     // Handled separately for groups like student list
-                } else if (field.type === 'hidden') {
-                     // For option buttons, check value
-                     if (!field.value) {
-                         isValid = false;
-                         errorMessage = formGroup?.querySelector('.error-message')?.textContent || 'This selection is required';
-                     }
-                }
-                 else if (!field.value.trim()) {
-                    isValid = false;
-                     errorMessage = formGroup?.querySelector('.error-message')?.textContent || 'This field is required';
-                }
+             if (field.required) {
+                if (field.type === 'checkbox' || field.type === 'radio') { } // Handled separately
+                else if (field.type === 'hidden') { if (!field.value) { isValid = false; } }
+                else if (!field.value.trim()) { isValid = false; }
             }
-
-             // Specific validations
-             if (isValid && field.type === 'email' && field.value.trim() && !isValidEmail(field.value)) {
-                 isValid = false;
-                 errorMessage = 'Please enter a valid email address';
-             }
-             // Basic phone validation (e.g., check for at least some digits)
-             if (isValid && field.type === 'tel' && field.value.trim() && !/^\d[\d\s-]*\d$/.test(field.value)) {
-                 isValid = false;
-                  errorMessage = 'Please enter a valid phone number';
-             }
-
-
-            if (!isValid && formGroup) {
+             if (isValid && field.type === 'email' && field.value.trim() && !isValidEmail(field.value)) { isValid = false; errorMessage = 'Please enter a valid email address'; }
+             if (isValid && field.type === 'tel' && field.value.trim() && !/^\d[\d\s-]*\d$/.test(field.value)) { isValid = false; errorMessage = 'Please enter a valid phone number'; }
+             if (!isValid && formGroup) {
                 formGroup.classList.add('error');
-                 // Update the error message if specific one was set
-                 const errorDiv = formGroup.querySelector('.error-message');
-                 if (errorDiv && errorMessage) {
-                     // errorDiv.textContent = errorMessage; // You can enable this if needed
-                 }
+                const errorDiv = formGroup.querySelector('.error-message');
+                if (errorDiv && errorMessage) { errorDiv.textContent = errorMessage; }
+                else if(errorDiv && !errorMessage) { errorDiv.textContent = errorDiv.dataset.defaultError || 'This field is required';} // Use default if specific not set
             }
-
             return isValid;
         }
 
@@ -740,42 +723,40 @@
              const studentGroup = document.querySelector('.student-selection');
              const checkboxes = studentGroup.querySelectorAll('input[name="students"]:checked');
              const isValid = checkboxes.length > 0;
-
-              if (!isValid) {
-                 studentGroup.classList.add('error');
-             } else {
-                 studentGroup.classList.remove('error');
-             }
+             if (!isValid) { studentGroup.classList.add('error'); }
+             else { studentGroup.classList.remove('error'); }
              return isValid;
          }
 
 
+        // --- THIS IS THE CORRECTED FORM SUBMISSION LOGIC ---
         function setupFormValidation() {
             const form = document.getElementById('create-job-form');
             const requiredInputs = form.querySelectorAll('[required]');
+            const submitButton = form.querySelector('.submit-btn'); // Get button outside listener
 
             form.addEventListener('submit', function(event) {
-                event.preventDefault(); // Prevent default submission
+                event.preventDefault(); // <<<--- STEP 1: Prevent default form submission FIRST!
 
                 let isFormValid = true;
 
-                // Validate individual required fields
+                // Run validation
                 requiredInputs.forEach(input => {
                     if (!validateField(input)) {
                         isFormValid = false;
                     }
                 });
-
-                 // Validate student selection group
                  if (!validateStudentSelection()) {
                      isFormValid = false;
                  }
 
-
-                // If all validations pass, proceed
+                // If form is valid, collect data and SEND it
                 if (isFormValid) {
-                    console.log('Form is valid. Submitting...');
-                    // --- Data Collection (Example) ---
+                    console.log('Form is valid. Collecting data...');
+                    submitButton.disabled = true; // Disable button
+                    submitButton.textContent = 'Creating...';
+
+                    // Collect form data into an object
                     const formData = {
                          clientName: document.getElementById('client-name').value.trim(),
                          companyName: document.getElementById('company-name').value.trim(),
@@ -786,62 +767,59 @@
                          taxStatus: document.getElementById('tax-status').value,
                          jobType: document.getElementById('job-type').value,
                          description: document.getElementById('job-description').value.trim(),
-                         quantity: document.getElementById('quantity').value || null, // Store as number or null
+                         quantity: document.getElementById('quantity').value ? parseInt(document.getElementById('quantity').value, 10) : null, // Ensure number or null
                          inkColor: document.getElementById('ink-color').value.trim() || null,
-                         files: Array.from(document.getElementById('file-upload').files).map(f => f.name), // Just names for now
-                         assignedTo: Array.from(document.querySelectorAll('input[name="students"]:checked')).map(cb => cb.value),
-                         assignedDate: new Date().toISOString().split('T')[0], // Add assignment date
-                         // deadline: // You might want to add a deadline field to the form
+                         files: Array.from(document.getElementById('file-upload').files).map(f => f.name), // Just filenames for now
+                         assignedTo: Array.from(document.querySelectorAll('input[name="students"]:checked')).map(cb => cb.value), // Get selected student usernames
+                         assignedDate: new Date().toISOString().split('T')[0] // Set assignment date
                     };
 
-                    console.log("Collected Form Data:", formData);
+                    // --- ADDED DEBUG LOG ---
+                    console.log('Attempting to POST to /api/create-job with data:', JSON.stringify(formData));
 
-                    // For demonstration, show success alert and redirect
-                    // In a real app: Send formData to server/save to localStorage
-                    alert('Job created successfully!');
-                    window.location.href = 'instructor_dashboard.html';
+                    // <<<--- STEP 2 & 3: Fetch call to the correct API endpoint --- >>>
+                    fetch('/api/create-job', { // Use the relative API path
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData) // Send the collected data as JSON
+                    })
+                    .then(response => {
+                        // Check if the response status indicates success (e.g., 201 Created)
+                        if (!response.ok) {
+                            // If not okay, try to parse error details from response body
+                            return response.json().then(errData => {
+                               throw new Error(`Network response was not ok (${response.status}): ${errData.error || response.statusText}`);
+                            }).catch(() => { // If parsing JSON fails, use status text
+                               throw new Error(`Network response was not ok (${response.status}): ${response.statusText}`);
+                            });
+                        }
+                        return response.json(); // Expecting { message: '...', insertedId: '...' }
+                    })
+                    .then(data => {
+                        console.log('Job created successfully via API:', data);
+                        alert('Job created successfully!'); // Show success message
+                        window.location.href = 'instructor_dashboard.html'; // Redirect AFTER successful creation
+                    })
+                    .catch(error => {
+                        console.error('Error creating job via API:', error);
+                        alert(`Error creating job: ${error.message}. Please check console and try again.`);
+                        submitButton.disabled = false; // Re-enable button on error
+                        submitButton.textContent = 'Create Job';
+                    });
+                    // <<<--- End of Fetch call --- >>>
 
-                } else {
+                } else { // If form is NOT valid
                     console.log('Form validation failed.');
-                     // Find the first invalid field and scroll to it
                      const firstError = form.querySelector('.error');
                      if (firstError) {
                          firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
                      }
+                     submitButton.disabled = false; // Ensure button is enabled if validation fails initially
+                     submitButton.textContent = 'Create Job';
                 }
             });
-
-             // Optional: Add real-time validation on blur/change
-            // requiredInputs.forEach(input => {
-            //     input.addEventListener('blur', () => validateField(input));
-            //     input.addEventListener('change', () => validateField(input)); // For selects/hidden inputs
-            // });
-             // document.querySelectorAll('input[name="students"]').forEach(cb => {
-             //     cb.addEventListener('change', validateStudentSelection);
-             // });
         }
 
-        function isValidEmail(email) {
-            // Basic email regex
-            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return regex.test(String(email).toLowerCase());
-        }
-
-        function cancelForm() {
-            // Check if any significant fields have data
-            const hasData = Array.from(document.querySelectorAll('#create-job-form input[type="text"], #create-job-form textarea'))
-                                  .some(el => el.value.trim() !== '');
-             const studentsSelected = document.querySelectorAll('input[name="students"]:checked').length > 0;
-
-            if (hasData || studentsSelected) {
-                 if (confirm('Are you sure you want to cancel? Any entered information will be lost.')) {
-                    window.location.href = 'instructor_dashboard.html';
-                }
-            } else {
-                // If form is empty, just go back
-                window.location.href = 'instructor_dashboard.html';
-            }
-        }
     </script>
 </body>
 </html>
