@@ -1,51 +1,34 @@
-// netlify/functions/get-jobs.js
-const { MongoClient, ServerApiVersion } = require('mongodb');
+// Temporary debug version of get-jobs.js
+const { MongoClient } = require('mongodb'); // Removed ServerApiVersion for extreme simplicity test
 const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri, {
-    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
-  });
+// DO NOT log the full uri here in production logs, but maybe temporarily for debugging if desperate
+// console.log("Attempting connection with URI starting with:", uri ? uri.substring(0, uri.indexOf('@')) : "URI UNDEFINED");
+
+const client = new MongoClient(uri); // Removed options for simplicity test
 
 exports.handler = async (event, context) => {
-  if (event.httpMethod !== 'GET') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
   try {
-    const query = {};
-    const studentUsername = event.queryStringParameters?.assignedTo; // Optional chaining
-
-    if (studentUsername) {
-      // Query for documents where the 'assignedTo' array contains the student's username
-      query.assignedTo = studentUsername;
-      console.log(`Querying jobs for student: ${studentUsername}`); // Log the query target
-    } else {
-      console.log("Querying all jobs (no student specified)"); // Log if fetching all
-    }
-
+    console.log("Function invoked. Attempting connection...");
     await client.connect();
-    const database = client.db("graphicsflow");
-    const jobsCollection = database.collection("jobs");
+    console.log("MongoDB Connection Successful!"); // If you see this, auth worked!
+    // You could optionally try a simple DB command here like listCollections
+    // const db = client.db("graphicsflow");
+    // const collections = await db.listCollections().toArray();
+    // console.log("Collections:", collections.map(c => c.name));
 
-    console.log("Executing MongoDB query:", query); // Log the actual query object
-    const jobs = await jobsCollection.find(query).sort({ createdAt: -1 }).toArray();
-    console.log(`Found ${jobs.length} jobs matching query.`); // Log how many were found
-
+    await client.close();
+    console.log("Connection closed.");
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(jobs), // Return the array of jobs
+      body: JSON.stringify({ message: "Connection test successful", jobs: [] }), // Return empty for now
     };
   } catch (error) {
-    console.error('Error in get-jobs function:', error); // Log specific error
+    console.error('Connection or command failed:', error); // Log the exact error
+    // Ensure sensitive parts of error aren't logged if needed, but auth errors usually okay
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to fetch jobs', details: error.message }),
+      body: JSON.stringify({ error: 'Connection test failed', details: error.message }),
     };
-  } finally {
-     try {
-        await client.close();
-    } catch (closeError) {
-        console.error("Error closing MongoDB connection:", closeError);
-    }
   }
+  // No finally block needed if client.close() is inside try
 };
